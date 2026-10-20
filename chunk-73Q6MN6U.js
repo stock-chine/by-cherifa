@@ -1,0 +1,1 @@
+import{O as n}from"./chunk-QJVTYJUC.js";var t=class e{transform(r){return r==null?"":r.toLocaleString("fr-FR").replace(/[  ]/g," ")+" FCFA"}static \u0275fac=function(i){return new(i||e)};static \u0275pipe=n({name:"fcfa",type:e,pure:!0})};export{t as a};

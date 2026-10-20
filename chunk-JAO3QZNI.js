@@ -1,0 +1,1 @@
+import{O as n,db as s,s as t}from"./chunk-QJVTYJUC.js";var a=class i{i18n=t(s);transform(e,r){return this.i18n.t(e,r)}static \u0275fac=function(r){return new(r||i)};static \u0275pipe=n({name:"t",type:i,pure:!1})};export{a};

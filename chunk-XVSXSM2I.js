@@ -1,0 +1,1 @@
+import{B as i,o as s}from"./chunk-QJVTYJUC.js";var o=class e{message=i(null);timer;show(t){this.message.set(t),clearTimeout(this.timer),this.timer=setTimeout(()=>this.message.set(null),2200)}static \u0275fac=function(r){return new(r||e)};static \u0275prov=s({token:e,factory:e.\u0275fac,providedIn:"root"})};export{o as a};
