@@ -1,5 +1,5 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { CartItem, Product } from '../models/product';
+import { CartItem, Product, ShippingMode } from '../models/product';
 import { CatalogService } from './catalog.service';
 import { loadJson, saveJson } from './storage';
 
@@ -19,7 +19,7 @@ export function unitPriceFor(product: Product, qty: number): number {
 }
 
 const sameVariant = (a: CartItem, b: CartItem) =>
-  a.productId === b.productId && a.color === b.color && a.size === b.size;
+  a.productId === b.productId && a.color === b.color && a.size === b.size && a.shipping === b.shipping;
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
@@ -36,6 +36,9 @@ export class CartService {
       })
       .filter((l): l is CartLine => l !== null),
   );
+
+  /** Vrai si au moins un article n'a pas encore de mode de livraison (anciens paniers). */
+  readonly missingShipping = computed(() => this.items().some((i) => !i.shipping));
 
   readonly count = computed(() => this.items().reduce((n, i) => n + i.qty, 0));
   readonly subtotal = computed(() => this.lines().reduce((s, l) => s + l.total, 0));
@@ -62,6 +65,18 @@ export class CartService {
   setQty(item: CartItem, qty: number): void {
     if (qty < 1) return this.remove(item);
     this.items.update((list) => list.map((i) => (sameVariant(i, item) ? { ...i, qty } : i)));
+  }
+
+  /** Change le mode de livraison d'une ligne (fusionne avec une ligne identique existante). */
+  setShipping(item: CartItem, shipping: ShippingMode): void {
+    const target = { ...item, shipping };
+    this.items.update((list) => {
+      const rest = list.filter((i) => !sameVariant(i, item));
+      const twin = rest.find((i) => sameVariant(i, target));
+      return twin
+        ? rest.map((i) => (i === twin ? { ...i, qty: i.qty + item.qty } : i))
+        : list.map((i) => (sameVariant(i, item) ? { ...i, shipping } : i));
+    });
   }
 
   remove(item: CartItem): void {

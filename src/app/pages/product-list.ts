@@ -6,54 +6,55 @@ import { ProductCard } from '../components/product-card';
 import { CatalogService, SortKey } from '../services/catalog.service';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import * as icons from '../icons';
+import { I18nService } from '../i18n/i18n.service';
+import { TPipe } from '../i18n/t.pipe';
 
 
 const PRICE_RANGES = [
-  { label: 'Moins de 5 000', min: null, max: 5000 },
-  { label: '5 000 – 10 000', min: 5000, max: 10000 },
-  { label: '10 000 – 20 000', min: 10000, max: 20000 },
-  
-  { label: 'Plus de 20 000', min: 20000, max: null },
+  { label: 'list.price0', min: null, max: 5000 },
+  { label: 'list.price1', min: 5000, max: 10000 },
+  { label: 'list.price2', min: 10000, max: 20000 },
+  { label: 'list.price3', min: 20000, max: null },
 ];
 
 @Component({
   selector: 'app-product-list',
-  imports: [RouterLink, ProductCard, FaIconComponent],
+  imports: [RouterLink, ProductCard, FaIconComponent, TPipe],
   template: `
     <div class="container page">
       <nav class="crumbs">
-        <a routerLink="/">Accueil</a> ›
+        <a routerLink="/">{{ 'nav.home' | t }}</a> ›
         <span>{{ title() }}</span>
       </nav>
       <div class="head">
-        <h1>{{ title() }} <small>({{ results().length }} articles)</small></h1>
-        <button class="btn btn-outline filter-btn" type="button" (click)="showFilters.set(!showFilters())"><fa-icon [icon]="i.faSliders" /> Filtres</button>
+        <h1>{{ title() }} <small>({{ 'list.items' | t: { n: results().length } }})</small></h1>
+        <button class="btn btn-outline filter-btn" type="button" (click)="showFilters.set(!showFilters())"><fa-icon [icon]="i.faSliders" /> {{ 'list.filters' | t }}</button>
       </div>
 
       <div class="sorts">
         @for (s of sorts; track s.key) {
-          <button type="button" class="chip" [class.active]="sort() === s.key" (click)="setParam('tri', s.key === 'pertinence' ? null : s.key)">{{ s.label }}</button>
+          <button type="button" class="chip" [class.active]="sort() === s.key" (click)="setParam('tri', s.key === 'pertinence' ? null : s.key)">{{ 'list.sort.' + s.key | t }}</button>
         }
       </div>
 
       <div class="layout">
         <aside [class.open]="showFilters()">
-          <h3>Catégorie</h3>
-          <a class="opt" [class.on]="!category()" routerLink="/produits" [queryParams]="{ q: search() || null }">Toutes</a>
+          <h3>{{ 'list.category' | t }}</h3>
+          <a class="opt" [class.on]="!category()" routerLink="/produits" [queryParams]="{ q: search() || null }">{{ 'list.all' | t }}</a>
           @for (c of catalog.categories; track c.slug) {
-            <a class="opt" [class.on]="category() === c.slug" [routerLink]="['/categorie', c.slug]" queryParamsHandling="merge"><fa-icon class="ci" [icon]="c.icon" /> {{ c.name }}</a>
+            <a class="opt" [class.on]="category() === c.slug" [routerLink]="['/categorie', c.slug]" queryParamsHandling="merge"><fa-icon class="ci" [icon]="c.icon" /> {{ 'cat.' + c.slug | t }}</a>
           }
-          <h3>Prix (FCFA)</h3>
+          <h3>{{ 'list.price' | t }}</h3>
           @for (r of priceRanges; track r.label; let n = $index) {
-            <button type="button" class="opt" [class.on]="priceIdx() === n" (click)="setParam('prix', priceIdx() === n ? null : n)">{{ r.label }}</button>
+            <button type="button" class="opt" [class.on]="priceIdx() === n" (click)="setParam('prix', priceIdx() === n ? null : n)">{{ r.label | t }}</button>
           }
-          <h3>Note</h3>
+          <h3>{{ 'list.rating' | t }}</h3>
           @for (n of [4.5, 4]; track n) {
-            <button type="button" class="opt" [class.on]="minRating() === n" (click)="setParam('note', minRating() === n ? null : n)"><fa-icon class="stars" [icon]="i.faStar" /> {{ n }} et plus</button>
+            <button type="button" class="opt" [class.on]="minRating() === n" (click)="setParam('note', minRating() === n ? null : n)"><fa-icon class="stars" [icon]="i.faStar" /> {{ 'list.ratingMin' | t: { n: n } }}</button>
           }
-          <h3>Offres</h3>
-          <button type="button" class="opt" [class.on]="flashOnly()" (click)="setParam('flash', flashOnly() ? null : 1)"><fa-icon [icon]="i.faBolt" /> Ventes flash uniquement</button>
-          <button type="button" class="btn btn-dark btn-block reset" (click)="reset()">Réinitialiser</button>
+          <h3>{{ 'list.offers' | t }}</h3>
+          <button type="button" class="opt" [class.on]="flashOnly()" (click)="setParam('flash', flashOnly() ? null : 1)"><fa-icon [icon]="i.faBolt" /> {{ 'list.flashOnly' | t }}</button>
+          <button type="button" class="btn btn-dark btn-block reset" (click)="reset()">{{ 'list.reset' | t }}</button>
         </aside>
 
         <div class="results">
@@ -64,9 +65,9 @@ const PRICE_RANGES = [
           } @else {
             <div class="empty">
               <div class="emoji"><fa-icon [icon]="i.faMagnifyingGlass" /></div>
-              <h3>Aucun article trouvé</h3>
-              <p>Essayez une autre recherche ou retirez des filtres.</p>
-              <button class="btn btn-dark" type="button" (click)="reset()">Voir tous les articles</button>
+              <h3>{{ 'list.empty' | t }}</h3>
+              <p>{{ 'list.emptyHint' | t }}</p>
+              <button class="btn btn-dark" type="button" (click)="reset()">{{ 'list.seeAll' | t }}</button>
             </div>
           }
         </div>
@@ -103,15 +104,16 @@ export class ProductList {
   private readonly router = inject(Router);
 
   protected readonly priceRanges = PRICE_RANGES;
-  protected readonly sorts: { key: SortKey; label: string }[] = [
-    { key: 'pertinence', label: 'Pertinence' },
-    { key: 'ventes', label: 'Plus vendus' },
-    { key: 'nouveautes', label: 'Nouveautés' },
-    { key: 'prix-asc', label: 'Prix ↑' },
-    { key: 'prix-desc', label: 'Prix ↓' },
-    { key: 'note', label: 'Mieux notés' },
+  protected readonly sorts: { key: SortKey }[] = [
+    { key: 'pertinence' },
+    { key: 'ventes' },
+    { key: 'nouveautes' },
+    { key: 'prix-asc' },
+    { key: 'prix-desc' },
+    { key: 'note' },
   ];
   protected readonly showFilters = signal(false);
+  private readonly i18n = inject(I18nService);
 
   private readonly params = toSignal(this.route.paramMap.pipe(map((p) => p.get('slug'))));
   private readonly qp = toSignal(this.route.queryParamMap, { requireSync: true });
@@ -130,10 +132,11 @@ export class ProductList {
   protected readonly flashOnly = computed(() => this.qp().get('flash') === '1');
 
   protected readonly title = computed(() => {
-    if (this.search()) return `Résultats pour « ${this.search()} »`;
-    if (this.category()) return this.catalog.getCategory(this.category())?.name ?? 'Catégorie';
-    if (this.flashOnly()) return 'Ventes Flash';
-    return 'Tous les articles';
+    const t = (k: string, p?: Record<string, string>) => this.i18n.t(k, p);
+    if (this.search()) return t('list.resultsFor', { q: this.search()! });
+    if (this.category()) return t('cat.' + this.category());
+    if (this.flashOnly()) return t('home.flash');
+    return t('list.allTitle');
   });
 
   protected readonly results = computed(() => {

@@ -3,23 +3,24 @@ import { RouterLink } from '@angular/router';
 import { CatalogService } from '../services/catalog.service';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faChevronRight } from '../icons';
+import { TPipe } from '../i18n/t.pipe';
 
 /** Vue catégories façon application Shein : menu latéral + sous-grille. */
 @Component({
   selector: 'app-categories',
-  imports: [RouterLink, FaIconComponent],
+  imports: [RouterLink, FaIconComponent, TPipe],
   template: `
     <div class="container page">
       <div class="wrap">
         <nav class="side">
           @for (c of catalog.categories; track c.slug) {
-            <button type="button" [class.on]="active() === c.slug" (click)="active.set(c.slug)">{{ c.name }}</button>
+            <button type="button" [class.on]="active() === c.slug" (click)="active.set(c.slug)">{{ 'cat.' + c.slug | t }}</button>
           }
         </nav>
         <section class="panel">
           @if (current(); as c) {
             <a class="banner" [routerLink]="['/categorie', c.slug]">
-              <span><fa-icon [icon]="c.icon" /> {{ c.name }}</span><b>Tout voir <fa-icon [icon]="chevron" /></b>
+              <span><fa-icon [icon]="c.icon" /> {{ 'cat.' + c.slug | t }}</span><b>{{ 'home.seeAll' | t }} <fa-icon [icon]="chevron" /></b>
             </a>
             <div class="grid">
               @for (p of items(); track p.id) {

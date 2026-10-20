@@ -40,9 +40,13 @@ export interface Category {
   sizes?: string[];
 }
 
+/** Mode d'acheminement depuis la Chine (obligatoire pour commander). */
+export type ShippingMode = 'avion' | 'bateau';
+
 export interface CartItem {
   productId: number;
   qty: number;
   color?: string;
   size?: string;
+  shipping?: ShippingMode;
 }

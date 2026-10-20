@@ -5,22 +5,23 @@ import { FavoritesService } from '../services/favorites.service';
 import { FcfaPipe } from '../services/fcfa.pipe';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faBolt, faHeart, faHeartOutline, faStar } from '../icons';
+import { TPipe } from '../i18n/t.pipe';
 
 @Component({
   selector: 'app-product-card',
-  imports: [RouterLink, FcfaPipe, FaIconComponent],
+  imports: [RouterLink, FcfaPipe, FaIconComponent, TPipe],
   template: `
     @let p = product();
     <a class="card" [routerLink]="['/produit', p.id]">
       <div class="thumb">
         <img [src]="p.images[0]" [alt]="p.title" loading="lazy" />
         @if (discount(); as d) { <span class="badge off">-{{ d }}%</span> }
-        @if (p.isNew) { <span class="badge badge-new tag">Nouveau</span> }
+        @if (p.isNew) { <span class="badge badge-new tag">{{ 'card.new' | t }}</span> }
         <button
           type="button"
           class="fav"
           [class.on]="favs.has(p.id)"
-          [attr.aria-label]="favs.has(p.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+          [attr.aria-label]="(favs.has(p.id) ? 'card.favRemove' : 'card.favAdd') | t"
           (click)="toggleFav($event)"
         ><fa-icon [icon]="favs.has(p.id) ? icons.faHeart : icons.faHeartOutline" /></button>
       </div>
@@ -32,9 +33,9 @@ import { faBolt, faHeart, faHeartOutline, faStar } from '../icons';
         </div>
         <div class="meta">
           <span><fa-icon class="stars" [icon]="icons.faStar" /> {{ p.rating }}</span>
-          <span>{{ soldLabel() }} vendus</span>
+          <span>{{ 'card.sold' | t: { n: soldLabel() } }}</span>
         </div>
-        @if (p.flash) { <div class="flash"><fa-icon [icon]="icons.faBolt" /> Vente flash</div> }
+        @if (p.flash) { <div class="flash"><fa-icon [icon]="icons.faBolt" /> {{ 'card.flash' | t }}</div> }
       </div>
     </a>
   `,

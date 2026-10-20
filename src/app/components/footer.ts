@@ -1,42 +1,44 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CatalogService } from '../services/catalog.service';
-import { SHOP, whatsappLink } from '../services/shop-info';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import * as icons from '../icons';
-
+import { TPipe } from '../i18n/t.pipe';
+import { CatalogService } from '../services/catalog.service';
+import { SHOP, whatsappLink } from '../services/shop-info';
 
 @Component({
   selector: 'app-footer',
-  imports: [RouterLink, FaIconComponent],
+  imports: [RouterLink, FaIconComponent, TPipe],
   template: `
     <footer>
       <div class="container grid">
         <div>
           <div class="logo">STOCK CHINE <i>by Cherifa</i></div>
-          <p>Votre boutique de mode en ligne : hoodies oversize, cargos, jeans, t-shirts neutres, robes et accessoires importés directement de Chine. Prix détail et prix de gros.</p>
+          <p>{{ 'footer.about' | t }}</p>
         </div>
         <div>
-          <h4>Catégories</h4>
+          <h4>{{ 'nav.categories' | t }}</h4>
           @for (c of catalog.categories.slice(0, 6); track c.slug) {
-            <a [routerLink]="['/categorie', c.slug]">{{ c.name }}</a>
+            <a [routerLink]="['/categorie', c.slug]">{{ 'cat.' + c.slug | t }}</a>
           }
         </div>
         <div>
-          <h4>Service client</h4>
-          <a routerLink="/compte">Mon compte</a>
-          <a routerLink="/panier">Mon panier</a>
-          <a routerLink="/favoris">Mes favoris</a>
-          <a [href]="wa" target="_blank" rel="noopener"><fa-icon [icon]="i.faWhatsapp" /> Commander sur WhatsApp</a>
+          <h4>{{ 'footer.service' | t }}</h4>
+          <a routerLink="/compte">{{ 'footer.account' | t }}</a>
+          <a routerLink="/panier">{{ 'footer.cart' | t }}</a>
+          <a routerLink="/favoris">{{ 'footer.favorites' | t }}</a>
+          <a [href]="wa" target="_blank" rel="noopener"><fa-icon [icon]="i.faWhatsapp" /> {{ 'footer.orderWa' | t }}</a>
         </div>
         <div>
-          <h4>Contact</h4>
-          <a href="tel:+{{ shop.whatsappBF }}"><fa-icon [icon]="i.faPhone" /> Burkina : {{ shop.phoneBF }}</a>
-          <a href="tel:+8618339267415"><fa-icon [icon]="i.faPhone" /> Chine : {{ shop.phoneCN }}</a>
-          <p class="pay"><fa-icon [icon]="i.faMoneyBillWave" /> Paiement : Orange Money ({{ shop.orangeMoney }}) · Espèces à la livraison</p>
+          <h4>{{ 'footer.contact' | t }}</h4>
+          <a [href]="wa" target="_blank" rel="noopener"><fa-icon [icon]="i.faWhatsapp" /> WhatsApp : {{ shop.whatsappDisplay }}</a>
+          <p class="pay"><fa-icon [icon]="i.faMoneyBillWave" /> {{ 'pay.only' | t }} : {{ shop.orangeMoney }}</p>
+          <p class="pay"><fa-icon [icon]="i.faPlane" /> {{ 'ship.air' | t }} : {{ 'ship.airDelay' | t }}<br />
+            <fa-icon [icon]="i.faShip" /> {{ 'ship.sea' | t }} : {{ 'ship.seaDelay' | t }}</p>
+          <p class="pay">{{ 'ship.paidOnArrival' | t }}</p>
         </div>
       </div>
-      <div class="copy">© {{ year }} Stock Chine by Cherifa — Tous droits réservés</div>
+      <div class="copy">© {{ year }} Stock Chine by Cherifa — {{ 'footer.rights' | t }}</div>
     </footer>
   `,
   styles: `
@@ -48,7 +50,7 @@ import * as icons from '../icons';
     h4 { color: #fff; margin: 0 0 10px; }
     a { display: block; padding: 3px 0; }
     a:hover { color: #fff; }
-    .pay { color: #9a9a9a; }
+    .pay { color: #9a9a9a; margin: 8px 0 0; }
     .copy { text-align: center; border-top: 1px solid #2c2c2c; margin-top: 24px; padding-top: 16px; color: #8a8a8a; }
   `,
 })

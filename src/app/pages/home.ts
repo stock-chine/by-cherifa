@@ -1,17 +1,16 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { ProductCard } from '../components/product-card';
+import * as icons from '../icons';
+import { TPipe } from '../i18n/t.pipe';
 import { CatalogService } from '../services/catalog.service';
 import { HistoryService } from '../services/history.service';
 import { whatsappLink } from '../services/shop-info';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import * as icons from '../icons';
-
 
 interface Slide {
-  title: string;
-  subtitle: string;
-  cta: string;
+  /** Préfixe des clés de traduction : `home.slideN`. */
+  key: string;
   link: string[];
   query?: Record<string, string | number>;
   image: string;
@@ -19,48 +18,49 @@ interface Slide {
 }
 
 const PAGE_SIZE = 20;
+const img = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=900&q=70`;
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, ProductCard, FaIconComponent],
+  imports: [RouterLink, ProductCard, FaIconComponent, TPipe],
   template: `
     <div class="container page">
       <!-- Bannière -->
       <section class="hero" aria-roledescription="carrousel">
-        @for (s of slides; track s.title; let n = $index) {
+        @for (s of slides; track s.key; let n = $index) {
           <a class="slide" [class.on]="n === slide()" [style.background]="s.bg" [routerLink]="s.link" [queryParams]="s.query">
             <div class="txt">
               <span class="kicker">STOCK CHINE by Cherifa</span>
-              <h1>{{ s.title }}</h1>
-              <p>{{ s.subtitle }}</p>
-              <span class="btn btn-dark">{{ s.cta }} <fa-icon [icon]="i.faArrowRight" /></span>
+              <h1>{{ s.key + '.title' | t }}</h1>
+              <p>{{ s.key + '.sub' | t }}</p>
+              <span class="btn btn-dark">{{ s.key + '.cta' | t }} <fa-icon [icon]="i.faArrowRight" /></span>
             </div>
-            <img [src]="s.image" [alt]="s.title" />
+            <img [src]="s.image" [alt]="s.key + '.title' | t" />
           </a>
         }
         <div class="dots">
-          @for (s of slides; track s.title; let n = $index) {
-            <button type="button" [class.on]="n === slide()" (click)="slide.set(n)" [attr.aria-label]="'Diapositive ' + (n + 1)"></button>
+          @for (s of slides; track s.key; let n = $index) {
+            <button type="button" [class.on]="n === slide()" (click)="slide.set(n)" [attr.aria-label]="'home.slideAria' | t: { n: n + 1 }"></button>
           }
         </div>
       </section>
 
       <!-- Avantages -->
       <div class="perks">
-        <span><fa-icon [icon]="i.faTruckFast" /> Livraison Ouaga & Bobo</span>
-        <span><fa-icon [icon]="i.faBoxesStacked" /> Prix de gros dès 10 pcs</span>
-        <span><fa-icon [icon]="i.faMoneyBillWave" /> Paiement Orange Money</span>
-        <span><fa-icon [icon]="i.faCircleCheck" /> Qualité vérifiée</span>
+        <span><fa-icon [icon]="i.faPlane" /> {{ 'home.perk.air' | t }}</span>
+        <span><fa-icon [icon]="i.faShip" /> {{ 'home.perk.sea' | t }}</span>
+        <span><fa-icon [icon]="i.faMoneyBillWave" /> {{ 'home.perk.payment' | t }}</span>
+        <span><fa-icon [icon]="i.faBoxesStacked" /> {{ 'home.perk.wholesale' | t }}</span>
       </div>
 
       <!-- Catégories -->
       <section class="section">
-        <div class="section-head"><h2>Catégories</h2><a routerLink="/categories">Tout voir ›</a></div>
+        <div class="section-head"><h2>{{ 'home.categories' | t }}</h2><a routerLink="/categories">{{ 'home.seeAll' | t }} ›</a></div>
         <div class="cat-grid">
           @for (c of catalog.categories; track c.slug) {
             <a [routerLink]="['/categorie', c.slug]" class="cat">
-              <img [src]="c.image" [alt]="c.name" loading="lazy" />
-              <span>{{ c.name }}</span>
+              <img [src]="c.image" [alt]="'cat.' + c.slug | t" loading="lazy" />
+              <span>{{ 'cat.' + c.slug | t }}</span>
             </a>
           }
         </div>
@@ -69,10 +69,10 @@ const PAGE_SIZE = 20;
       <!-- Ventes flash -->
       <section class="section flash">
         <div class="section-head">
-          <h2><fa-icon class="hot" [icon]="i.faBolt" /> Ventes Flash
-            <span class="timer">Fin dans <b>{{ countdown().h }}</b>:<b>{{ countdown().m }}</b>:<b>{{ countdown().s }}</b></span>
+          <h2><fa-icon class="hot" [icon]="i.faBolt" /> {{ 'home.flash' | t }}
+            <span class="timer">{{ 'home.endsIn' | t }} <b>{{ countdown().h }}</b>:<b>{{ countdown().m }}</b>:<b>{{ countdown().s }}</b></span>
           </h2>
-          <a routerLink="/produits" [queryParams]="{ flash: 1 }">Voir tout ›</a>
+          <a routerLink="/produits" [queryParams]="{ flash: 1 }">{{ 'home.seeAll' | t }} ›</a>
         </div>
         <div class="h-scroll">
           @for (p of flash(); track p.id) { <app-product-card [product]="p" /> }
@@ -82,15 +82,15 @@ const PAGE_SIZE = 20;
       <!-- Grossiste -->
       <a class="wholesale" [href]="waWholesale" target="_blank" rel="noopener">
         <div>
-          <b>Vous êtes revendeur ?</b>
-          <span>Commandez en gros directement depuis la Chine — tarifs dégressifs et sourcing sur demande.</span>
+          <b>{{ 'home.reseller.title' | t }}</b>
+          <span>{{ 'home.reseller.text' | t }}</span>
         </div>
         <span class="btn btn-wa"><fa-icon [icon]="i.faWhatsapp" /> WhatsApp</span>
       </a>
 
       <!-- Meilleures ventes -->
       <section class="section">
-        <div class="section-head"><h2><fa-icon class="hot" [icon]="i.faFire" /> Meilleures ventes</h2><a routerLink="/produits" [queryParams]="{ tri: 'ventes' }">Voir tout ›</a></div>
+        <div class="section-head"><h2><fa-icon class="hot" [icon]="i.faFire" /> {{ 'home.best' | t }}</h2><a routerLink="/produits" [queryParams]="{ tri: 'ventes' }">{{ 'home.seeAll' | t }} ›</a></div>
         <div class="h-scroll">
           @for (p of best(); track p.id) { <app-product-card [product]="p" /> }
         </div>
@@ -98,7 +98,7 @@ const PAGE_SIZE = 20;
 
       <!-- Nouveautés -->
       <section class="section">
-        <div class="section-head"><h2><fa-icon class="hot" [icon]="i.faWandMagicSparkles" /> Nouveautés</h2><a routerLink="/produits" [queryParams]="{ tri: 'nouveautes' }">Voir tout ›</a></div>
+        <div class="section-head"><h2><fa-icon class="hot" [icon]="i.faWandMagicSparkles" /> {{ 'home.new' | t }}</h2><a routerLink="/produits" [queryParams]="{ tri: 'nouveautes' }">{{ 'home.seeAll' | t }} ›</a></div>
         <div class="h-scroll">
           @for (p of fresh(); track p.id) { <app-product-card [product]="p" /> }
         </div>
@@ -106,7 +106,7 @@ const PAGE_SIZE = 20;
 
       @if (history.products().length) {
         <section class="section">
-          <div class="section-head"><h2><fa-icon class="hot" [icon]="i.faEye" /> Vus récemment</h2></div>
+          <div class="section-head"><h2><fa-icon class="hot" [icon]="i.faEye" /> {{ 'home.recent' | t }}</h2></div>
           <div class="h-scroll">
             @for (p of history.products(); track p.id) { <app-product-card [product]="p" /> }
           </div>
@@ -114,12 +114,12 @@ const PAGE_SIZE = 20;
       }
 
       <!-- Pour vous -->
-      <div class="section-head foryou"><h2>Pour vous</h2></div>
+      <div class="section-head foryou"><h2>{{ 'home.forYou' | t }}</h2></div>
       <div class="product-grid">
         @for (p of forYou(); track p.id) { <app-product-card [product]="p" /> }
       </div>
       @if (forYou().length < feed().length) {
-        <div class="more"><button class="btn btn-outline" type="button" (click)="shown.update(n => n + 20)">Voir plus d'articles</button></div>
+        <div class="more"><button class="btn btn-outline" type="button" (click)="shown.update(n => n + 20)">{{ 'home.more' | t }}</button></div>
       }
     </div>
   `,
@@ -137,11 +137,12 @@ const PAGE_SIZE = 20;
     .dots { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; }
     .dots button { width: 8px; height: 8px; border-radius: 4px; background: rgba(0,0,0,.25); transition: width .3s; }
     .dots button.on { width: 22px; background: var(--ink); }
-    .perks { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-top: 12px; }
+    .perks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+    @media (min-width: 700px) { .perks { grid-template-columns: repeat(4, 1fr); } }
     .perks fa-icon, .hot { color: var(--brand); }
-    .perks span { flex: 1 0 auto; background: #fff; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; text-align: center; }
+    .perks span { background: #fff; border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; text-align: center; }
     .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 8px; }
-    @media (min-width: 900px) { .cat-grid { grid-template-columns: repeat(12, 1fr); } }
+    @media (min-width: 900px) { .cat-grid { grid-template-columns: repeat(10, 1fr); } }
     .cat { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 11px; }
     .cat img { width: 100%; max-width: 76px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; background: #f2f2f2; border: 1px solid var(--line); }
     .flash { background: linear-gradient(180deg, #fff1ec, #fff 120px); }
@@ -170,10 +171,10 @@ export class Home {
   protected readonly waWholesale = whatsappLink('Bonjour, je suis revendeur et je souhaite commander en gros.');
 
   protected readonly slides: Slide[] = [
-    { title: 'Hoodies & pulls oversize', subtitle: 'Le confort streetwear dès 7 500 FCFA', cta: 'Découvrir', link: ['/categorie', 'pulls-sweats'], image: 'https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?auto=format&fit=crop&w=900&q=70', bg: 'linear-gradient(120deg,#efe9e1,#e2d8cb)' },
-    { title: 'Cargos & jeans baggy', subtitle: 'Les coupes larges qui font la tendance', cta: 'Shopper', link: ['/categorie', 'cargos'], image: 'https://images.unsplash.com/photo-1511794322962-129ddbd0af38?auto=format&fit=crop&w=900&q=70', bg: 'linear-gradient(120deg,#e9e4d8,#d6cfbf)' },
-    { title: 'T-shirts neutres', subtitle: 'Blanc, noir, beige… les essentiels', cta: 'Voir', link: ['/categorie', 't-shirts'], image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=70', bg: 'linear-gradient(120deg,#f4f4f2,#e4e4e0)' },
-    { title: 'Ventes flash', subtitle: 'Quantités limitées, prix imbattables', cta: "J'en profite", link: ['/produits'], query: { flash: 1 }, image: 'https://images.unsplash.com/photo-1597350584914-55bb62285896?auto=format&fit=crop&w=900&q=70', bg: 'linear-gradient(120deg,#ffe5e5,#ffd1d1)' },
+    { key: 'home.slide1', link: ['/categorie', 'pulls-sweats'], image: img('1564557287817-3785e38ec1f5'), bg: 'linear-gradient(120deg,#efe9e1,#e2d8cb)' },
+    { key: 'home.slide2', link: ['/categorie', 'cargos'], image: img('1511794322962-129ddbd0af38'), bg: 'linear-gradient(120deg,#e9e4d8,#d6cfbf)' },
+    { key: 'home.slide3', link: ['/categorie', 't-shirts'], image: img('1521572163474-6864f9cf17ab'), bg: 'linear-gradient(120deg,#f4f4f2,#e4e4e0)' },
+    { key: 'home.slide4', link: ['/produits'], query: { flash: 1 }, image: img('1597350584914-55bb62285896'), bg: 'linear-gradient(120deg,#ffe5e5,#ffd1d1)' },
   ];
   protected readonly slide = signal(0);
 

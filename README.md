@@ -2,7 +2,9 @@
 
 Boutique de mode en ligne (PWA Angular) : hoodies et pulls oversize, cargos, jeans, t-shirts neutres, robes, vestes, ensembles, sneakers et accessoires importés de Chine.
 
-Contact : +226 57 49 77 71 (WhatsApp & Orange Money) / +86 183 3926 7415
+WhatsApp : +86 183 3926 7415 · Paiement Orange Money uniquement : +226 57 49 77 71 · Livraison avion (3-4 semaines) ou bateau (3-4 mois), transport payé à l'arrivée.
+
+Langues : français, anglais, chinois (`src/app/i18n/`).
 
 ## Développement
 

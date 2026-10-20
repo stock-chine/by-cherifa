@@ -1,24 +1,24 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CartService } from '../services/cart.service';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import * as icons from '../icons';
-
+import { TPipe } from '../i18n/t.pipe';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-bottom-nav',
-  imports: [RouterLink, RouterLinkActive, FaIconComponent],
+  imports: [RouterLink, RouterLinkActive, FaIconComponent, TPipe],
   template: `
-    <nav aria-label="Navigation principale">
+    <nav [attr.aria-label]="'nav.main' | t">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <span class="i"><fa-icon [icon]="i.faHouse" /></span>Accueil
+        <span class="i"><fa-icon [icon]="i.faHouse" /></span>{{ 'nav.home' | t }}
       </a>
-      <a routerLink="/categories" routerLinkActive="active"><span class="i"><fa-icon [icon]="i.faTableCellsLarge" /></span>Catégories</a>
-      <a routerLink="/produits" [queryParams]="{ flash: 1 }"><span class="i"><fa-icon [icon]="i.faBolt" /></span>Flash</a>
+      <a routerLink="/categories" routerLinkActive="active"><span class="i"><fa-icon [icon]="i.faTableCellsLarge" /></span>{{ 'nav.categories' | t }}</a>
+      <a routerLink="/produits" [queryParams]="{ flash: 1 }"><span class="i"><fa-icon [icon]="i.faBolt" /></span>{{ 'nav.flash' | t }}</a>
       <a routerLink="/panier" routerLinkActive="active">
-        <span class="i"><fa-icon [icon]="i.faCartShopping" />@if (cart.count()) {<b>{{ cart.count() }}</b>}</span>Panier
+        <span class="i"><fa-icon [icon]="i.faCartShopping" />@if (cart.count()) {<b>{{ cart.count() }}</b>}</span>{{ 'nav.cart' | t }}
       </a>
-      <a routerLink="/compte" routerLinkActive="active"><span class="i"><fa-icon [icon]="i.faUser" /></span>Moi</a>
+      <a routerLink="/compte" routerLinkActive="active"><span class="i"><fa-icon [icon]="i.faUser" /></span>{{ 'nav.me' | t }}</a>
     </nav>
   `,
   styles: `

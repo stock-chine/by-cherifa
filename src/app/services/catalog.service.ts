@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { CATEGORIES } from '../data/categories.data';
 import { PRODUCTS } from '../data/products.data';
+import { allCategoryNames } from '../i18n/i18n.service';
 import { Category, Product } from '../models/product';
 import { loadJson, saveJson } from './storage';
 import { ProductRow, rowToProduct, SupabaseService } from './supabase.service';
@@ -97,7 +98,7 @@ export class CatalogService {
       if (q.minRating != null && p.rating < q.minRating) return false;
       if (q.flashOnly && !p.flash) return false;
       if (terms.length) {
-        const cat = this.getCategory(p.category)?.name ?? '';
+        const cat = allCategoryNames(p.category);
         const hay = normalize(`${p.title} ${p.brand ?? ''} ${cat}`);
         if (!terms.every((t) => hay.includes(t))) return false;
       }
